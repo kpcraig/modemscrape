@@ -48,7 +48,6 @@ func (c *CM1200) GetStats() ([]modemscrape.UpstreamChannel, []modemscrape.Downst
 	resp.Body.Close()
 
 	req.SetBasicAuth(c.Username, c.Password)
-	// req.Header.Set("Authorization", "Basic YWRtaW46UEBkZm9vdDE=")
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:79.0) Gecko/20100101 Firefox/79.0")
 	req.Header.Set("Cookie", xsrf)
 
