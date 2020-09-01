@@ -1,0 +1,11 @@
+[modem]
+host = "http://192.168.100.1"
+username = "admin"
+password = "password"
+
+[influxdb]
+hostname = "http://localhost:8086"
+username = "admin"
+password = "password"
+database = "stats"
+
