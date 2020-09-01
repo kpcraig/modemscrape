@@ -6,8 +6,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"github.com/malyonsus/modemscrape/modem"
-	"github.com/malyonsus/modemscrape/output"
+	"github.com/kpcraig/modemscrape/modem"
+	"github.com/kpcraig/modemscrape/output"
 )
 
 type config struct {
