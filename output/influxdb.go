@@ -7,7 +7,8 @@ import (
 
 	_ "github.com/influxdata/influxdb1-client" // this is important because of the bug in go mod
 	influx "github.com/influxdata/influxdb1-client/v2"
-	"github.com/malyonsus/modemscrape"
+
+	"github.com/kpcraig/modemscrape"
 )
 
 type InfluxDBOutput struct {
