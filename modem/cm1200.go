@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/malyonsus/modemscrape"
+	"github.com/kpcraig/modemscrape"
 )
 
 type CM1200 struct {
