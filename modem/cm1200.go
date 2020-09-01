@@ -31,7 +31,6 @@ var (
 	FirmwareVersion = []string{"2.02.05"}
 )
 
-// var CM1200VarRegExp = regexp.MustCompile(`tagValueList = '([0-9a-zA-Z|. &;:+~]+)';`)
 var CM1200VarRegExp = regexp.MustCompile(`(?s)Init(\w+)TableTagValue.*?tagValueList = '([0-9a-zA-Z|. &;:+~]+)';`)
 
 func (c *CM1200) GetStats() ([]modemscrape.UpstreamChannel, []modemscrape.DownstreamChannel, []modemscrape.UpstreamOFDMChannel, []modemscrape.DownstreamOFDMChannel, error) {
@@ -127,7 +126,6 @@ func parseUpstream(tagValues string) ([]modemscrape.UpstreamChannel, error) {
 
 	usc := make([]modemscrape.UpstreamChannel, rows)
 	for i := 0; i < rows; i++ {
-		// fmt.Println(data[i])
 		usc[i].Locked = data[i][1] == "Locked"
 		usc[i].Modulation = data[i][2]
 		fmt.Sscanf(data[i][3], "%d", &usc[i].BondedChannelID)
@@ -153,7 +151,6 @@ func parseDownstream(tagValues string) ([]modemscrape.DownstreamChannel, error) 
 
 	dsc := make([]modemscrape.DownstreamChannel, rows)
 	for i := 0; i < rows; i++ {
-		// fmt.Println(data[i])
 		dsc[i].Locked = data[i][1] == "Locked"
 		dsc[i].Modulation = data[i][2]
 		fmt.Sscanf(data[i][3], "%d", &dsc[i].BondedChannelID)
@@ -180,7 +177,6 @@ func parseDownstreamOFDM(tagValues string) ([]modemscrape.DownstreamOFDMChannel,
 
 	dsc := make([]modemscrape.DownstreamOFDMChannel, rows)
 	for i := 0; i < rows; i++ {
-		// fmt.Println(data[i])
 		dsc[i].Locked = data[i][1] == "Locked"
 		fmt.Sscanf(data[i][3], "%d", &dsc[i].BondedChannelID)
 		fmt.Sscanf(data[i][4], "%d Hz", &dsc[i].Frequency)
