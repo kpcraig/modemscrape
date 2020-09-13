@@ -1,11 +1,24 @@
 package modemscrape
 
+import "time"
+
 type Modem interface {
 	GetStats() ([]UpstreamChannel, []DownstreamChannel, []UpstreamOFDMChannel, []DownstreamOFDMChannel, error)
 }
 
+// LoggableModem should be implemented for modems that can retrieve logs in a syslog-like format as defined in this
+// package.
+type LoggableModem interface {
+	// GetLogs should return all logs created since the last run of this function for an implementing modem.
+	GetLogs() ([]Log, error)
+}
+
 type Output interface {
 	PutStats([]UpstreamChannel, []DownstreamChannel, []UpstreamOFDMChannel, []DownstreamOFDMChannel) error
+}
+
+type LogOutput interface {
+	PutLogs([]Log) error
 }
 
 type UpstreamChannel struct {
@@ -42,4 +55,11 @@ type DownstreamOFDMChannel struct {
 	SNR                float64
 	CorrectableWords   int64
 	UncorrectableWords int64
+}
+
+type Log struct {
+	SeverityCode int // should match syslog, which is netgear - 1
+	Severity     string
+	Timestamp    time.Time
+	Message      string
 }

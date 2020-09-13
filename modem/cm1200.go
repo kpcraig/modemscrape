@@ -16,6 +16,8 @@ type CM1200 struct {
 	URL      string
 	Username string
 	Password string
+
+	lastLogHash []byte
 }
 
 const (
@@ -23,6 +25,9 @@ const (
 	TagDownstream     = "Ds"
 	TagUpstreamOFDM   = "UsOfdma"
 	TagDownstreamOFDM = "DsOfdm"
+
+	PageStatus = "DocsisStatus.htm"
+	PageLog    = "eventLog.htm"
 )
 
 var (
@@ -31,7 +36,50 @@ var (
 	FirmwareVersion = []string{"2.02.05"}
 )
 
-var CM1200VarRegExp = regexp.MustCompile(`(?s)Init(\w+)TableTagValue.*?tagValueList = '([0-9a-zA-Z|. &;:+~]+)';`)
+var (
+	CM1200VarRegExp = regexp.MustCompile(`(?s)Init(\w+)TableTagValue.*?tagValueList = '([0-9a-zA-Z|. &;:+~]+)';`)
+	CM1200LogRegExp = regexp.MustCompile(`var xmlFormat = '<docsDevEventTable>((?:<tr>.*?<\\/tr>)*)<\\/docsDevEventTable>`)
+)
+
+func (c *CM1200) GetLogs() ([]modemscrape.Log, error) {
+	req, err := http.NewRequest(http.MethodGet, c.URL+"/"+PageLog, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	xsrf := resp.Header.Get("Set-Cookie")
+	resp.Body.Close()
+
+	req.SetBasicAuth(c.Username, c.Password)
+	req.Header.Set("Cookie", xsrf)
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Body == nil {
+		return nil, errors.New("no body in log request")
+	}
+
+	defer resp.Body.Close()
+	bt, err := ioutil.ReadAll(resp.Body)
+	logLines := CM1200LogRegExp.FindStringSubmatch(string(bt))
+	if len(logLines) <= 1 {
+		return nil, errors.New("no matches found for logs")
+	}
+	cg := logLines[1]
+	cg = strings.TrimPrefix(cg, "<tr>")
+	cg = strings.TrimSuffix(cg, `<\/tr>`)
+	cgs := strings.Split(cg, `<\/tr><tr>`)
+	for _, v := range cgs {
+		fmt.Println(v)
+	}
+
+	return nil, nil
+}
 
 func (c *CM1200) GetStats() ([]modemscrape.UpstreamChannel, []modemscrape.DownstreamChannel, []modemscrape.UpstreamOFDMChannel, []modemscrape.DownstreamOFDMChannel, error) {
 	req, err := http.NewRequest(http.MethodGet, c.URL+"/DocsisStatus.htm", nil)
@@ -77,7 +125,6 @@ func (c *CM1200) GetStats() ([]modemscrape.UpstreamChannel, []modemscrape.Downst
 
 	matches := CM1200VarRegExp.FindAllStringSubmatch(s, -1)
 	for _, m := range matches {
-		fmt.Println("Case", m[1])
 		switch strings.TrimSpace(m[1]) {
 		case TagDownstream:
 			down, err = parseDownstream(m[2])
